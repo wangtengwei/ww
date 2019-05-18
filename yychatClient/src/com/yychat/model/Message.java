@@ -8,10 +8,10 @@ public class Message implements Serializable,MessageType{
 	private String content;
 	private String messageType;
 	
-	public String getContent() {
+	public String getContent() {//ªÒ»°
 		return content;
 	}
-	public void setContent(String content) {
+	public void setContent(String content) {//±£¥Ê
 		this.content = content;
 	}
 	public String getSender() {

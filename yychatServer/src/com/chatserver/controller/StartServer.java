@@ -44,29 +44,9 @@ public class StartServer {
 				System.out.println(passWord);
 				
 				//使用数据库来验证用户名和密码
-				//1 加载驱动程序
-				Class.forName("com.mysql.jdbc.Driver");
 				
-				//2 建立连接,默认GBK
-				//String url="jdbc:mysql://127.0.0.1:3306/yychat";
-				String url="jdbc:mysql://127.0.0.1:3306/yychat?useUnicode=true&characterEncoding=UTF-8";
-				String dbuser="root";
-				String dbpass="";
-				Connection conn=DriverManager.getConnection(url,dbuser,dbpass);
 				
-				//3 建立一个prepareStatement
-				String user_Login_Sql="select * from user where username=? and password=?";
-				PreparedStatement ptmt=conn.prepareStatement(user_Login_Sql);
-				ptmt.setString(1, userName);
-				ptmt.setString(2,passWord);
-				
-				//4 执行prepareStatement
-				ResultSet rs=ptmt.executeQuery();
-				
-				//5 判断结果集
-				boolean loginSuccess=rs.next();
-				
-				//Server端验证密码是否“123456”
+				boolean loginSuccess=YychatDbUtil.loginValidate(userName, passWord);
 				mess=new Message();
 				mess.setSender("Server");
 				mess.setReceiver(user.getUserName());
@@ -76,16 +56,11 @@ public class StartServer {
 					mess.setMessageType(Message.message_LoginSuccess);//验证通过
 					
 					//从数据库relation表中读取好友信息来更新好友列表1.服务器读好友数据出来
-					String friend_Relation_Sql="select slaveuser from relation where masteruser=? and relationtype='1'";
-					ptmt=conn.prepareStatement(friend_Relation_Sql);
-					ptmt.setString(1, userName);
-					rs=ptmt.executeQuery();
-					String friendString="";
-					while(rs.next()){//移动结果集中的指针，一个个的取出好友的名字
-						//rs.getString(1);
-						friendString=friendString+rs.getString("slaveuser")+" ";
-					}
-					mess.setContent(friendString);
+					String friendString=YychatDbUtil.getFriendString(userName);
+					
+					
+					
+					mess.setContent(friendString);//保存好友信息到mess对象的content成员
 					System.out.println(userName+"的全部好友: "+friendString);
 					
 				}
@@ -120,7 +95,7 @@ public class StartServer {
 				
 			}			
 			
-		} catch (IOException | ClassNotFoundException | SQLException e) {			
+		} catch (IOException | ClassNotFoundException e) {			
 			e.printStackTrace();
 		}
 	}
